@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 import pandas as pd
 from utils import get_beer_vector, get_beer_style_recommendations, splitDftoDict
 
@@ -24,12 +25,13 @@ def main(argv=None):
     beer_style_dict = splitDftoDict(df=beer_df, split_col="beer_style_clean")
     recs_df = pd.DataFrame()
     for style in beer_df['beer_style_clean'].unique():
+            print((style, datetime.now().strftime("%Y%m%d %H:%M:%S")))
+            recs = get_beer_style_recommendations(beer_style_dict[style])
             try:
-                print(style)
-                recs = get_beer_style_recommendations(beer_style_dict[style])
                 recs_df = pd.concat([recs_df, recs], axis=0, ignore_index=True)
             except:
                 next
+
     recs_df.to_csv("recommendations.csv", index=False)
     recs.to_gbq(project_id=args.project,
                 destination_table="beer.recommendations",
