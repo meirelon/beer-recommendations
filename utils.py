@@ -95,7 +95,10 @@ def get_beer_vector(beer_link, ratings):
 
 def get_beer_style_recommendations(df):
     beer_vector_list = [get_beer_vector(beer_link=x, ratings=y) for x,y in df[['link', 'ratings']].values.tolist()]
-    beer_vector_df = pd.concat(beer_vector_list, axis=0)
+    try:
+        beer_vector_df = pd.concat(beer_vector_list, axis=0)
+    except:
+        return None
 
     a = beer_vector_df[["look", "smell", "taste", "feel", "overall", "records"]]
     d = pd.DataFrame(cdist(a, a), columns=beer_vector_df['link'])
