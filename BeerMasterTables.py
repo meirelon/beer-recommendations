@@ -4,7 +4,7 @@ from utils import get_beer_styles, get_beer_style_info, get_brewery_info
 
 
 class BeerMasterTables:
-    def get_master_table(self):
+    def get_master_table():
         beer_style_links, beer_style_names = get_beer_styles()
         beer_style_info_lists = [get_beer_style_info(n, l) for n,l in zip(beer_style_names, beer_style_links)]
         beer_df = pd.concat(beer_style_info_lists, axis=0)
@@ -14,7 +14,7 @@ class BeerMasterTables:
         #                if_exists="replace",
         #                verbose=False)
 
-    def get_brewery_table(self):
+    def get_brewery_table():
         beer_df = pd.read_gbq(project_id='scarlet-labs',
                           query="select * from `scarlet-labs.beer.beer_info_master_table` order by ratings desc",
                           dialect='standard',
@@ -35,8 +35,10 @@ def main(argv=None):
     args, _ = parser.parse_known_args(argv)
 
     if args.table_type.lower() == "brewery":
+        print("Getting Brewery Info")
         BeerMasterTables.get_brewery_table()
     else:
+        print("Getting Master Info")
         BeerMasterTables.get_master_table()
 
 if __name__ == '__main__':

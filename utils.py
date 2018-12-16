@@ -83,25 +83,28 @@ def get_beer_style_info(beer_style, beer_link, page=0):
 
 
 def get_brewery_info(brewery_link):
-    url = "https://www.beeradvocate.com" + brewery_link
-    r = get_request(url)
-    all_tags = bs(r.content, "html.parser")
+    try:
+        url = "https://www.beeradvocate.com" + brewery_link
+        r = requests.get(url)
+        all_tags = bs(r.content, "html.parser")
 
-    score = float([x.text.strip() for x in all_tags.findAll('span', attrs={'class' : re.compile("ba-ravg")})][0])
-    beer_stats = [x.text.strip() for x in all_tags.findAll('div', attrs={'id' : re.compile("item_stats")})][0].split("\n")[1:][::2]
-    beers_total, reviews_total, ratings_total = int(beer_stats[0].replace(",", "")), int(beer_stats[1].replace(",", "")), int(beer_stats[2].replace(",", ""))
-    location, website = [x.get("href") for x in all_tags.findAll('a', attrs={'href' : re.compile("http"), "target" : re.compile("_blank")})][0:2]
-    zipcode = re.findall(string=location, pattern="\d+")[-1]
+        score = float([x.text.strip() for x in all_tags.findAll('span', attrs={'class' : re.compile("ba-ravg")})][0])
+        beer_stats = [x.text.strip() for x in all_tags.findAll('div', attrs={'id' : re.compile("item_stats")})][0].split("\n")[1:][::2]
+        beers_total, reviews_total, ratings_total = int(beer_stats[0].replace(",", "")), int(beer_stats[1].replace(",", "")), int(beer_stats[2].replace(",", ""))
+        location, website = [x.get("href") for x in all_tags.findAll('a', attrs={'href' : re.compile("http"), "target" : re.compile("_blank")})][0:2]
+        zipcode = re.findall(string=location, pattern="\d+")[-1]
 
-    brewery_df = pd.DataFrame({"brewery_score":score,
-              "beers_total":beers_total,
-              "reviews_total":reviews_total,
-              "ratings_total":ratings_total,
-              "location":location,
-              "website":website,
-              "zipcode":zipcode},index=[brewery_link])
+        brewery_df = pd.DataFrame({"brewery_score":score,
+                  "beers_total":beers_total,
+                  "reviews_total":reviews_total,
+                  "ratings_total":ratings_total,
+                  "location":location,
+                  "website":website,
+                  "zipcode":zipcode},index=[brewery_link])
 
-    return brewery_df
+        return brewery_df
+    except:
+        return None
 
 
 
