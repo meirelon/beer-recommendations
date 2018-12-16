@@ -8,11 +8,11 @@ class BeerMasterTables:
         beer_style_links, beer_style_names = get_beer_styles()
         beer_style_info_lists = [get_beer_style_info(n, l) for n,l in zip(beer_style_names, beer_style_links)]
         beer_df = pd.concat(beer_style_info_lists, axis=0)
-        beer_df.to_csv("beer_info_master_table.csv", index=False)
         # beer_df.to_gbq(project_id='scarlet-labs',
         #                destination_table="beer.beer_info_master_table",
         #                if_exists="replace",
         #                verbose=False)
+        return beer_df
 
     def get_brewery_table():
         beer_df = pd.read_gbq(project_id='scarlet-labs',
@@ -21,7 +21,12 @@ class BeerMasterTables:
                           verbose=False)
         brewery_df_list = [get_brewery_info(x) for x in beer_df["brewery_link"].unique()]
         brewery_df = pd.concat(brewery_df_list).join(beer_df[["brewery_link", "brewery"]].drop_duplicates().set_index("brewery_link")).reset_index().rename(columns={"index":"brewery_link"})
-        brewery_df.to_csv("brewery_info.csv", index=False)
+        # beer_df.to_gbq(project_id='scarlet-labs',
+        #                destination_table="beer.brewery_info",
+        #                if_exists="replace",
+        #                verbose=False)
+        return brewery_df
+
 
 
 def main(argv=None):
@@ -35,11 +40,15 @@ def main(argv=None):
     args, _ = parser.parse_known_args(argv)
 
     if args.table_type.lower() == "brewery":
-        print("Getting Brewery Info")
-        BeerMasterTables.get_brewery_table()
+        print(("Getting Brewery Info", datetime.now().strftime("%Y%m%d %H:%M:%S")))
+        df = BeerMasterTables.get_brewery_table()
+        print(("Writing Output", datetime.now().strftime("%Y%m%d %H:%M:%S")))
+        df.to_csv("brewery_info.csv", index=False)
     else:
-        print("Getting Master Info")
-        BeerMasterTables.get_master_table()
+        print(("Getting Master Info", datetime.now().strftime("%Y%m%d %H:%M:%S")))
+        df = BeerMasterTables.get_master_table()
+        print(("Writing Output", datetime.now().strftime("%Y%m%d %H:%M:%S")))
+        df.to_csv("beer_info_master_table.csv", index=False)
 
 if __name__ == '__main__':
     main()
