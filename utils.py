@@ -109,4 +109,15 @@ def get_beer_style_recommendations(df):
 
     rec_df_wide = rec_df.recommendations.apply(pd.Series).merge(rec_df, left_index=True, right_index=True).drop(["recommendations"], axis=1)
     rec_df_wide.columns = ["rec1", "rec2", "rec3", "link"]
-    return rec_df_wide
+
+    recs_df_long = pd.melt(rec_df_wide, id_vars=["link"],
+                  value_vars=["rec1", "rec2", "rec3"],
+                  value_name="beer_rec",
+                  var_name="rec_rank")
+    recs_df_long.loc[recs_df_long['rec_rank'] == 'rec1', 'rec_rank'] = '1'
+    recs_df_long.loc[recs_df_long['rec_rank'] == 'rec2', 'rec_rank'] = '2'
+    recs_df_long.loc[recs_df_long['rec_rank'] == 'rec3', 'rec_rank'] = '3'
+    recs_df_long['rec_rank'] = recs_df_long['rec_rank'].astype(int)
+
+
+    return recs_df_long

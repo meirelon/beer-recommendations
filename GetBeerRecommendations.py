@@ -24,16 +24,16 @@ def main(argv=None):
 
     beer_style_dict = splitDftoDict(df=beer_df, split_col="beer_style_clean")
     recs_df = pd.DataFrame()
-    for style in beer_df['beer_style_clean'].unique():
+    for style in beer_df['beer_style_clean'].unique()[0:2]:
+        try:
             print((style, datetime.now().strftime("%Y%m%d %H:%M:%S")))
             recs = get_beer_style_recommendations(beer_style_dict[style])
-            try:
-                recs_df = pd.concat([recs_df, recs], axis=0, ignore_index=True)
-            except:
-                next
+            recs_df = pd.concat([recs_df, recs], axis=0, ignore_index=True)
+        except:
+            next
 
     recs_df.to_csv("recommendations.csv", index=False)
-    recs.to_gbq(project_id=args.project,
+    recs_df.to_gbq(project_id=args.project,
                 destination_table="beer.recommendations",
                 if_exists="replace",
                 chunksize=args.nchunks,
