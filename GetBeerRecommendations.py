@@ -24,7 +24,7 @@ def main(argv=None):
 
     beer_style_dict = splitDftoDict(df=beer_df, split_col="beer_style_clean")
     recs_df = pd.DataFrame()
-    for style in beer_df['beer_style_clean'].unique()[0:2]:
+    for style in beer_df['beer_style_clean'].unique():
         try:
             print((style, datetime.now().strftime("%Y%m%d %H:%M:%S")))
             recs = get_beer_style_recommendations(beer_style_dict[style])
