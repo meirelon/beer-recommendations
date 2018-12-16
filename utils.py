@@ -40,15 +40,25 @@ def splitDftoDict(df, split_col):
     return dict_to_return
 
 
+def get_beer_styles():
+    url = "https://www.beeradvocate.com/beer/styles/"
+    r = get_request(url)
+    all_tags = bs(r.content, "html.parser")
+    beer_style_links = [x.get('href') for x in all_tags.findAll('a', attrs={'href': re.compile("/beer/styles/\d{1,}/")})]
+    beer_style_names = [x.text.strip() for x in all_tags.findAll('a', attrs={'href': re.compile("/beer/styles/\d{1,}/")})]
+    return beer_style_links, beer_style_names
+
 
 def get_beer_style_info(beer_style, beer_link, page=0):
     print(beer_style, end=' ')
-    time.sleep(random.normalvariate(2,0.5))
+    time.sleep(abs(random.normalvariate(2,0.5)))
     beer_style_url = "https://www.beeradvocate.com{beer_style}?sort=revsD&start={page}".format(beer_style=beer_link, page=0)
     r = get_request(beer_style_url)
     all_tags = bs(r.content, "html.parser")
 
     beer_links = [x.get('href') for x in all_tags.findAll('a', attrs={'href': re.compile("/beer/profile/\d{1,}/")})][::2]
+    brewery_link = [re.findall(string=x.get('href'), pattern="[/]beer[/]profile[/]\d{1,}[/]")[0]
+                    for x in all_tags.findAll('a', attrs={'href': re.compile("/beer/profile/\d{1,}/")})][::2]
     tbl = [x.text.strip() for x in all_tags.findAll('td', attrs={'class' : re.compile("hr_bottom_light")})]
     beers = tbl[::6]
     brewery = tbl[1:][::6]
@@ -56,6 +66,9 @@ def get_beer_style_info(beer_style, beer_link, page=0):
     ratings = [x.replace(",", "") for x in tbl[3:][::6]]
     score = tbl[4:][::6]
     beer_style_name = [beer_style] * len(beers)
+    beer_style_name_clean = [re.sub(string=beer_style,
+                                    pattern="[(]|[)]",
+                                    repl="").strip().replace(" / ", "_").replace(" ", "_").lower().strip()] * len(beers)
 
     df = pd.DataFrame.from_dict({"beer":beers,
                    "brewery":brewery,
@@ -63,7 +76,8 @@ def get_beer_style_info(beer_style, beer_link, page=0):
                    "ratings":ratings,
                    "score":score,
                    "link" : beer_links,
-                   "beer_style" : beer_style_name})
+                   "beer_style" : beer_style_name,
+                   "beer_style_clean" : beer_style_name_clean})
     return df
 
 

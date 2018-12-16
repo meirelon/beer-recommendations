@@ -33,11 +33,11 @@ def main(argv=None):
             next
 
     recs_df.to_csv("recommendations.csv", index=False)
-    recs_df.to_gbq(project_id=args.project,
-                destination_table="beer.recommendations",
-                if_exists="replace",
-                chunksize=args.nchunks,
-                verbose=False)
+    # recs_df.to_gbq(project_id=args.project,
+    #             destination_table="beer.recommendations",
+    #             if_exists="replace",
+    #             chunksize=args.nchunks,
+    #             verbose=False)
 
 if __name__ == '__main__':
     main()
