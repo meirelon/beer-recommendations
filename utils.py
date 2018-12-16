@@ -76,6 +76,7 @@ def get_beer_style_info(beer_style, beer_link, page=0):
                    "ratings":ratings,
                    "score":score,
                    "link" : beer_links,
+                   "brewery_link" : brewery_link,
                    "beer_style" : beer_style_name,
                    "beer_style_clean" : beer_style_name_clean})
     return df
